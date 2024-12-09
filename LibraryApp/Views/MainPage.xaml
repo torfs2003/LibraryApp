@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:model="clr-namespace:LibraryApp.Models"
+             xmlns:vm="clr-namespace:LibraryApp.ViewModels"
+             xmlns:local="clr-namespace:LibraryApp.Converters"
+             x:Class="LibraryApp.Views.MainPage"
+             x:Name="MainPage"
+             Title="{Binding Title}">
+
+    <ContentPage.Resources>
+        <local:BoolToAddRemoveButtonTextConverter x:Key="BoolToAddRemoveButtonTextConverter" />
+    </ContentPage.Resources>
+
+    <VerticalStackLayout>
+        <CollectionView IsVisible="{Binding IsNotBusy}" ItemsSource="{Binding Books}" SelectedItem="{Binding SelectedBook}" BackgroundColor="Transparent">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="model:Book">
+                    <VerticalStackLayout Padding="10">
+                        <Frame BorderColor="DarkRed" Margin="5">
+                            <VerticalStackLayout Padding="5">
+
+                                <Label Text="{Binding Name}" FontSize="20" FontAttributes="Bold" />
+
+                                <HorizontalStackLayout Padding="10" Spacing="20">
+                                    <Image Source="{Binding ImagePath}" HeightRequest="150" WidthRequest="100" Aspect="AspectFill"/>
+
+                                    <VerticalStackLayout Padding="5" Spacing="20" VerticalOptions="Center">
+                                        <VerticalStackLayout Spacing="8">
+                                            <Label Text="{Binding Author}" FontSize="12" />
+                                            <Label Text="{Binding Genre}" FontSize="12" />
+                                            <Label Text="{Binding IsAvailable, StringFormat='{0:Available;Loaned out}'}" FontSize="12" />
+                                            <Label Text="{Binding DueDate, StringFormat='Due Date: {0:MM/dd/yyyy}'}" FontSize="12" />
+                                        </VerticalStackLayout>
+
+                                        <Button Text="{Binding IsInCart, Converter={StaticResource BoolToAddRemoveButtonTextConverter}}"
+                                                FontSize="16"
+                                                HeightRequest="40"
+                                                WidthRequest="200"
+                                                BackgroundColor="DarkRed"
+                                                Command="{Binding Path=BindingContext.ToggleBookCommand, Source={x:Reference Name=MainPage}}"
+                                                CommandParameter="{Binding .}" />
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Text="Save" FontSize="20" 
+                Command="{Binding SaveBookCommand}" 
+                IsEnabled="{Binding IsSaveButtonVisible}"
+                BackgroundColor="DarkRed"/>
+        <ActivityIndicator IsVisible="{Binding IsBusy}"
+                           IsRunning="{Binding IsBusy}"
+                           HorizontalOptions="FillAndExpand"
+                           VerticalOptions="CenterAndExpand"/>
+    </VerticalStackLayout>
+</ContentPage>
