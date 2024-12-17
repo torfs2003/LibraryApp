@@ -1,4 +1,4 @@
-﻿using LibraryApp.Views;
+﻿using Microsoft.Extensions.Logging;
 
 namespace LibraryApp
 {
@@ -14,16 +14,26 @@ namespace LibraryApp
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
+
 #if DEBUG
             builder.Logging.AddDebug();
-#endif
-            builder.Services.AddSingleton<LibraryService>();
 
+#endif
+
+            builder.Services.AddSingleton<BookService>();
+            builder.Services.AddSingleton<InventoryService>();
+            builder.Services.AddSingleton<UserService>();
+
+            builder.Services.AddSingleton<BaseViewModel>();
             builder.Services.AddSingleton<BookViewModel>();
-            builder.Services.AddSingleton<CartViewModel>();
+            builder.Services.AddSingleton<InventoryViewModel>();
+            builder.Services.AddSingleton<LoginViewModel>();
+            builder.Services.AddSingleton<AdminViewModel>();
 
             builder.Services.AddSingleton<MainPage>();
-            builder.Services.AddSingleton<CartPage>();
+            builder.Services.AddSingleton<InventoryPage>();
+            builder.Services.AddSingleton<LoginPage>();
+            builder.Services.AddSingleton<AdminPage>();
 
 
             return builder.Build();

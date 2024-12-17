@@ -1,23 +1,25 @@
-﻿namespace LibraryApp.Views
+namespace LibraryApp.Views
 {
     public partial class MainPage : ContentPage
     {
-        private readonly BookViewModel viewModel;
-        public MainPage(BookViewModel viewModel)
+        private BookViewModel _bookViewModel;
+
+        public MainPage()
         {
             InitializeComponent();
-            this.viewModel = viewModel;
-            BindingContext = viewModel;
-
+            _bookViewModel = new BookViewModel(new BookService(), new InventoryService());
+            BindingContext = _bookViewModel;
         }
-        protected override async void OnAppearing()
+
+        protected override void OnDisappearing()
         {
-            base.OnAppearing();
-            await viewModel.GetBooksAsync();
-            
+            base.OnDisappearing();
+
+            // Ensure OnDisappearing from ViewModel is called
+            if (BindingContext is BookViewModel viewModel)
+            {
+                viewModel.OnDisappearing();
+            }
         }
     }
-
-
 }
-

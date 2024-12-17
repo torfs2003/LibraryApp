@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:model="clr-namespace:LibraryApp.Models"
+             xmlns:convert="clr-namespace:LibraryApp.Converters"
+             xmlns:local="clr-namespace:LibraryApp"
+             xmlns:vm="clr-namespace:LibraryApp.ViewModels"
+             xmlns:views="clr-namespace:LibraryApp.Views"
+             x:DataType="vm:InventoryViewModel"
+             x:Class="LibraryApp.Views.InventoryPage"
+             Title="{Binding Title}">
+
+    <ContentPage.Resources>
+        <convert:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <convert:DueDateConverter x:Key="DueDateConverter" />
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="10" BackgroundColor="FloralWhite">
+            <CollectionView IsVisible="{Binding IsNotBusy}" ItemsSource="{Binding Inventory}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:Inventory">
+                        <Frame BorderColor="DarkRed" Margin="2" BackgroundColor="Transparent">
+                            <VerticalStackLayout Padding="5">
+                                <!-- Bind to the Book properties inside Inventory -->
+                                <Label Text="{Binding book.Title}" FontSize="24" FontAttributes="Bold" />
+                                <HorizontalStackLayout Padding="10">
+                                    <Image Source="{Binding book.Image}" 
+                                           HeightRequest="150" 
+                                           WidthRequest="100" 
+                                           Aspect="AspectFill" />
+                                    <VerticalStackLayout Padding="10" Spacing="4" VerticalOptions="Center">
+                                        <Label Text="{Binding book.Author}" FontSize="14" />
+                                        <Label Text="{Binding book.Genre}" FontSize="14" />
+                                        <Label Text="{Binding DueDate, Converter={StaticResource DueDateConverter}}" FontSize="12" />
+
+                                        <!-- Add Button -->
+                                        <Button 
+                                                Text="Add"
+                                                FontSize="16"
+                                                HeightRequest="50"
+                                                WidthRequest="200"
+                                                BackgroundColor="DarkRed"
+                                                IsVisible="{Binding book.IsAddButtonVisibleInventory}" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InventoryViewModel}}, Path=ToggleInventoryCommand}"
+                                                CommandParameter="{Binding book}" />
+
+                                        <!-- Remove Button -->
+                                        <Button 
+                                                Text="Remove"
+                                                FontSize="16"
+                                                HeightRequest="50"
+                                                WidthRequest="200"
+                                                BorderColor="DarkRed"
+                                                BorderWidth="2"
+                                                BackgroundColor="Transparent"
+                                                TextColor="DarkRed"
+                                                IsVisible="{Binding book.IsRemoveButtonVisibleInventory}" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InventoryViewModel}}, Path=ToggleInventoryCommand}"
+                                                CommandParameter="{Binding book}" />
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Button Text="Return books" 
+                    Command="{Binding ReturnBookCommand}"
+                    BackgroundColor="DarkRed"
+                    HeightRequest="40"
+                    WidthRequest="200"
+                    IsEnabled="{Binding IsReturnButtonVisible}" />
+            <ActivityIndicator IsVisible="{Binding IsBusy}"
+                               IsRunning="{Binding IsBusy}"
+                               HorizontalOptions="FillAndExpand"
+                               VerticalOptions="CenterAndExpand" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:model="clr-namespace:LibraryApp.Models"
+             xmlns:vm="clr-namespace:LibraryApp.ViewModels"
+             x:DataType="vm:AdminViewModel"
+             x:Class="LibraryApp.Views.AdminPage"
+             Title="{Binding Title}">
+
+    <ContentPage.BindingContext>
+        <vm:AdminViewModel />
+    </ContentPage.BindingContext>
+
+    <ContentPage.Resources>
+        <!-- Define the DataTemplateSelector -->
+        <vm:ItemTemplateSelector x:Key="ItemTemplateSelector">
+            <!-- Book Template -->
+            <vm:ItemTemplateSelector.BookTemplate>
+                <DataTemplate x:DataType="model:Book">
+                    <VerticalStackLayout>
+                        <Label Text="{Binding Title}" FontSize="Medium" />
+                        <Label Text="{Binding Author}" />
+                        <Label Text="{Binding Genre}" />
+                        <Label Text="{Binding Image}" />
+                        <Label Text="{Binding Stock}" />
+                        
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </vm:ItemTemplateSelector.BookTemplate>
+
+            <!-- User Template -->
+            <vm:ItemTemplateSelector.UserTemplate>
+                <DataTemplate x:DataType="model:User">
+                    <VerticalStackLayout>
+                        <Label Text="{Binding FirstName}" FontSize="Medium" />
+                        <Label Text="{Binding LastName}" />
+                        <Label Text="{Binding Email}" />
+                        <Label Text="{Binding Password}" />
+                        <Label Text="{Binding Admin}" />
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </vm:ItemTemplateSelector.UserTemplate>
+
+            <!-- Inventory Template -->
+            <vm:ItemTemplateSelector.InventoryTemplate>
+                <DataTemplate x:DataType="model:Inventory">
+                    <VerticalStackLayout>
+                        <Label Text="{Binding DueDate}" FontSize="Medium" />
+                        <Label Text="{Binding UserId}" />
+                        <Label Text="{Binding BookId}" />
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </vm:ItemTemplateSelector.InventoryTemplate>
+        </vm:ItemTemplateSelector>
+    </ContentPage.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Picker to switch between Users, Books, and Inventories -->
+        <StackLayout Padding="10" Orientation="Horizontal">
+            <Picker x:Name="SelectionPicker" SelectedIndexChanged="OnPickerSelectedIndexChanged" 
+                    SelectedIndex="{Binding Selection, Mode=TwoWay}">
+                <Picker.Items>
+                    <x:String>Users</x:String>
+                    <x:String>Books</x:String>
+                    <x:String>Inventories</x:String>
+                </Picker.Items>
+            </Picker>
+        </StackLayout>
+
+        <!-- CollectionView to display the data -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="10">
+                <CollectionView x:Name="ItemsCollectionView" 
+                                ItemsSource="{Binding Items}"
+                                ItemTemplate="{StaticResource ItemTemplateSelector}">
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

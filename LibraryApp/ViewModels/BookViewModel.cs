@@ -1,133 +1,99 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-namespace LibraryApp.ViewModels
+﻿namespace LibraryApp.ViewModels
 {
-    public partial class BookViewModel : BaseViewModel
+    public partial class BookViewModel : BaseViewModel, IQueryAttributable
     {
-        LibraryService libraryService;
+        private readonly BookService _bookService;
+        private readonly InventoryService _inventoryService;
+
+        // Observable collections for books and cart
         public ObservableCollection<Book> Books { get; } = new();
+        public ObservableCollection<Book> Cart { get; } = new();
 
 
-
-        private Book? _selectedBook;
-        public Book? SelectedBook
-        {
-            get => _selectedBook;
-            set
-            {
-                _selectedBook = value;
-                OnPropertyChanged();
-            }
-        }
-
+        public ICommand LogoutCommand { get; }
         public ICommand GetBooksCommand { get; }
-        public ICommand NavigateToMainPageCommand { get; }
-        public ICommand NavigateToCartPageCommand { get; }
         public ICommand SaveBookCommand { get; }
         public ICommand ToggleBookCommand { get; }
 
-        //private readonly HttpClient _httpClient;
-        //private const string ApiUrl = "http://localhost:5000/api/books"; // Your API URL
+        public bool IsSaveButtonVisible => Cart.Count > 0;
 
-        public BookViewModel(LibraryService libraryService)
+        public bool IsBookInCart(Book book)
         {
-            Title = "Library Books";
-            this.libraryService = libraryService;
-
-            Books = new ObservableCollection<Book>();
-            //_httpClient = new HttpClient(); // Initialize HttpClient
-            /*
-            var book1 = new Book("The Great Gatsby", "F. Scott Fitzgerald", "Fiction", "gatsby.jpg");
-
-            Books.Add(book1);
-
-            Console.WriteLine(book1.Id);
-
-
-            var book2 = new Book("1984", "George Orwell", "Dystopian", "nineteen_eightyfour.jpg");
-
-            Books.Add(book2);
-
-
-            Console.WriteLine(book2.Id);
-
-            var book3 = new Book("To Kill a Mockingbird", "Harper Lee", "Fiction", "mockingbird.jpg");
-
-            Books.Add(book3);
-
-            Console.WriteLine(book3.Id);
-            */
-
-            GetBooksCommand = new Command(async () => await GetBooksAsync());
-            SaveBookCommand = new Command(async () => await SaveBook());
-            NavigateToMainPageCommand = new Command(async () => await NavigateToMainPage());
-            NavigateToCartPageCommand = new Command(async () => await NavigateToCartPage());
-            ToggleBookCommand = new Command<Book>(ToggleBookInCart);
-            this.libraryService = libraryService;
-
-            // Fetch books from the API on initialization
-            //GetBooksFromApi();
+            return Cart.Contains(book);
         }
 
-        // Method to fetch books from the API
-        /*
-        private async Task GetBooksFromApi()
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
+            if (query.ContainsKey("userId") && int.TryParse(query["userId"].ToString(), out int userId))
+            {
+                UserId = userId;
+            }
+        }
+
+        // Constructor
+        public BookViewModel(BookService bookService, InventoryService inventoryService)
+        {
+            Title = "Library Books";
+            _bookService = bookService;
+            _inventoryService = inventoryService;
+
+
+            // Commands for various actions
+            LogoutCommand = new Command(Logout);
+            GetBooksCommand = new Command(async () => await GetBooksAsync());
+            SaveBookCommand = new Command(async () => await SaveBooks());
+            ToggleBookCommand = new Command<Book>(ToggleBook);
+
+            Task.Run(async () => await GetBooksAsync());
+        }
+
+        private async void Logout()
+        {
+            Preferences.Remove("userEmail");
+            Preferences.Remove("userPassword");
+
+            // Optionally, clear the user token if you're using authentication tokens
+            Preferences.Remove("userToken");
+
+
+            await Shell.Current.GoToAsync($"//LoginPage?userId={UserId}");
+        }
+        // Fetch the books that the user currently owns in their inventory
+        public async Task GetBooksAsync()
+        {
+            if (IsBusy)
+                return;
+
+            if (Books.Count > 0)
+                return;
+
             try
             {
-                var response = await _httpClient.GetStringAsync(ApiUrl);
-                
+                IsBusy = true;
 
-                Books.Clear();
-                foreach (var book in booksFromApi)
+                // Fetch all books using the BookService
+                var allBooks = await _bookService.GetAllBooks();
+
+                // Add each book to the Books collection
+                foreach (var bookDetails in allBooks)
                 {
+                    var book = new Book(
+                        bookDetails.Id,
+                        bookDetails.Title,
+                        bookDetails.Author,
+                        bookDetails.Genre,
+                        bookDetails.Image,  // Image can be null, so handle accordingly
+                        bookDetails.Stock
+                    );
                     Books.Add(book);
                 }
+
+                Console.WriteLine($"Fetched {Books.Count} books from the server.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error fetching books: {ex.Message}");
-            }
-        }*/
-
-
-
-
-        private async Task SaveBook()
-        {
-            if (CartService.Cart.Count > 0)
-            {
-                await NavigateToCartPage();
-            }
-            else
-            {
-                if (Application.Current != null && Application.Current.MainPage != null)
-                {
-
-                    await Application.Current.MainPage.DisplayAlert("Empty Cart", "Your cart is empty. Please add books before saving.", "OK");
-                }
-                else
-                {
-                    Console.WriteLine("Unable to display alert because the Application.Current or MainPage is null.");
-                }
-            }
-        }
-
-        public async Task GetBooksAsync()
-        {
-            if (IsBusy) return;
-            try
-            {
-                IsBusy = true;
-                var books = await libraryService.GetBooks();
-                foreach (var book in books)
-                     Books.Add(book); 
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-                await Shell.Current.DisplayAlert("Error!",
-                    $"Unable to get the books: {ex.Message}", "OK");
+                await Shell.Current.DisplayAlert("Error!", $"Unable to get the books: {ex.Message}", "OK");
             }
             finally
             {
@@ -136,36 +102,146 @@ namespace LibraryApp.ViewModels
         }
 
 
-
-        private async Task NavigateToMainPage()
+        private async void ToggleBook(Book book)
         {
-            await Shell.Current.GoToAsync("//MainPage");
-        }
-
-        private async Task NavigateToCartPage()
-        {
-            await Shell.Current.GoToAsync("//CartPage");
-        }
-
-        public bool IsSaveButtonVisible => CartService.Cart.Count > 0;
-
-        private void ToggleBookInCart(Book book)
-        {
-            if (book != null)
+            try
             {
-                if (book.IsInCart)
+                // If the book is already in the cart, remove it
+                if (Cart.Contains(book))
                 {
-                    CartService.Cart.Remove(book);
-                    book.IsInCart = false; 
+                    Cart.Remove(book); // Remove the book from the cart
+                    book.IsAddButtonVisibleBook = true; // Show "Add to Cart" button
+                    book.IsRemoveButtonVisibleBook = false; // Hide "Remove from Cart" button
                 }
                 else
                 {
-                    CartService.Cart.Add(book);
-                    book.IsInCart = true; 
+                    // Otherwise, add the book to the cart
+                    Cart.Add(book); // Add the book to the cart
+                    book.IsAddButtonVisibleBook = false; // Hide "Add to Cart" button
+                    book.IsRemoveButtonVisibleBook = true; // Show "Remove from Cart" button
                 }
 
-                OnPropertyChanged(nameof(Books));
+                // Notify UI of changes
+                OnPropertyChanged(nameof(Cart)); // Update the Cart UI
+                OnPropertyChanged(nameof(IsSaveButtonVisible)); // Update visibility if needed
+            }
+            catch (Exception ex)
+            {
+                // Handle potential errors gracefully
+                await Shell.Current.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
             }
         }
+
+
+
+
+
+
+        // Save (Borrow) books in the cart
+        private async Task SaveBooks()
+        {
+            if (Cart.Count == 0)
+                return;
+
+            var success = true;
+
+            foreach (var book in Cart)
+            {
+                // Borrowing the book via the inventory service
+                var inventoryItem = new InventoryWriteDto
+                {
+                    BookId = book.Id,
+                    UserId = UserId,
+                    DueDate = DateTime.Now.AddDays(30)
+                };
+
+                bool bookSuccess = await _inventoryService.BorrowBooks(inventoryItem);
+                if (!bookSuccess)
+                {
+                    success = false;
+                    break; // Exit the loop if one book fails
+                }
+
+                // Update the book stock (decrement by 1)
+                var bookDetails = await _bookService.GetBookById(book.Id);
+                if (bookDetails != null)
+                {
+                    // Decrement the stock value
+                    var updatedBook = new BookUpdateDto
+                    {
+                        Title = bookDetails.Title,
+                        Author = bookDetails.Author,
+                        Genre = bookDetails.Genre,
+                        Image = bookDetails.Image,
+                        Stock = bookDetails.Stock - 1
+                    };
+
+                    // Update in the database
+                    bool updateSuccess = await _bookService.UpdateBook(book.Id, updatedBook);
+                    if (updateSuccess)
+                    {
+                        // Update the stock in the Book object in the collection
+                        var bookInCollection = Books.FirstOrDefault(b => b.Id == book.Id);
+                        if (bookInCollection != null)
+                        {
+                            bookInCollection.Stock = updatedBook.Stock; // This will notify the UI due to SetProperty
+                            bookInCollection.IsAddButtonVisibleBook = true; // Reset to "Add" button
+                            bookInCollection.IsRemoveButtonVisibleBook = false; // Reset to "Remove" button
+                        }
+                    }
+                    else
+                    {
+                        success = false;
+                        break; // Exit the loop if updating stock fails
+                    }
+                }
+                else
+                {
+                    success = false;
+                    break; // Exit the loop if the book details cannot be fetched
+                }
+            }
+
+            // Show success or failure message after all books are processed
+            if (success)
+            {
+                // Clear the cart after all books have been successfully borrowed
+                Cart.Clear();
+
+                // Explicitly notify the UI that the cart is empty and the "Save" button should be disabled
+                OnPropertyChanged(nameof(Cart)); // This will notify the UI about the cart change
+                OnPropertyChanged(nameof(IsSaveButtonVisible)); // This will update the button visibility
+
+                // Show confirmation modal
+                bool navigateToInventory = await Shell.Current.DisplayAlert(
+                    "Success",
+                    "Books borrowed and stock updated successfully.\nDo you want to go to your inventory?",
+                    "Yes",
+                    "No"
+                );
+
+                if (navigateToInventory)
+                {
+                    await Shell.Current.GoToAsync($"//InventoryPage?userId={UserId}");
+
+                }
+            }
+            else
+            {
+                // Display error message if any part of the process failed
+                await Shell.Current.DisplayAlert("Error", "There was an issue updating the book stock.", "OK");
+            }
+        }
+
+        public void OnDisappearing()
+        {
+            // Reset the buttons for each book
+            foreach (var book in Cart)
+            {
+                book.IsAddButtonVisibleBook = true;
+                book.IsRemoveButtonVisibleBook = false;
+            }
+        }
+
     }
 }

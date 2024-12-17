@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-       xmlns:views="clr-namespace:LibraryApp.Views"
-       xmlns:vm="clr-namespace:LibraryApp.ViewModels"
-       x:Class="LibraryApp.AppShell"
-       Title="LibraryApp">
-    
-    <TabBar>
-        <ShellContent Title="Home" Icon="home_icon.png">
-            <ShellContent.ContentTemplate>
-                <DataTemplate>
-                    <views:MainPage />
-                </DataTemplate>
-            </ShellContent.ContentTemplate>
-        </ShellContent>
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:LibraryApp"
+    xmlns:views="clr-namespace:LibraryApp.Views"
+    Shell.FlyoutBehavior="Disabled"
+    x:Class="LibraryApp.AppShell"
+    Title="Library">
 
-        <ShellContent Title="Cart" Icon="cart_icon.png">
-            <ShellContent.ContentTemplate>
-                <DataTemplate>
-                    <views:CartPage />
-                </DataTemplate>
-            </ShellContent.ContentTemplate>
-        </ShellContent>
+    <ShellContent ContentTemplate="{DataTemplate views:LoginPage}" Route="LoginPage" />
+    <ShellContent ContentTemplate="{DataTemplate views:AdminPage}" Route="AdminPage" />
+
+
+
+    <TabBar>
+        <Tab Title="Home" Icon="home_icon.png">
+            <ShellContent ContentTemplate="{DataTemplate views:MainPage}" Route="MainPage"/>
+        </Tab>
+
+        <Tab Title="Inventory" Icon="inventory_icon.png">
+            <ShellContent ContentTemplate="{DataTemplate views:InventoryPage}" Route="InventoryPage"/>
+        </Tab>
     </TabBar>
+
 </Shell>

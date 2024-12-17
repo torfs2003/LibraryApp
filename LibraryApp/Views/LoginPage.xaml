@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:LibraryApp"
+             xmlns:vm="clr-namespace:LibraryApp.ViewModels"
+             x:Class="LibraryApp.Views.LoginPage"
+             Title="Login / Register">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <!-- Login Section -->
+            <StackLayout IsVisible="{Binding IsLoginVisible}">
+                <!-- Binding Email Entry to ViewModel -->
+                <Entry x:Name="EmailEntry" Placeholder="Email" FontSize="18" Text="{Binding Email}" />
+                <!-- Binding Password Entry to ViewModel -->
+                <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True" FontSize="18" Text="{Binding Password}" />
+
+                <!-- Login Button -->
+                <Button Text="Login"
+                        FontSize="18"
+                        BackgroundColor="DarkRed"
+                        TextColor="White"
+                        Command="{Binding LoginCommand}" />
+
+                <!-- Switch to Registration -->
+                <Label 
+                    Text="Don't have an account? Register here"
+                    FontSize="16"
+                    TextColor="Blue"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer 
+                            Command="{Binding SwitchToRegisterCommand}" />
+                    </Label.GestureRecognizers>
+                    <Label.Style>
+                        <Style TargetType="Label">
+                            <Setter Property="TextColor" Value="Blue"/>
+                            <Setter Property="TextDecorations" Value="Underline"/>
+                        </Style>
+                    </Label.Style>
+                </Label>
+            </StackLayout>
+
+            <!-- Registration Section -->
+            <StackLayout IsVisible="{Binding IsRegisterVisible}">
+                <!-- Binding First Name -->
+                <Entry x:Name="FirstNameEntry" Placeholder="First Name" FontSize="18" Text="{Binding FirstName}" />
+                <!-- Binding Last Name -->
+                <Entry x:Name="LastNameEntry" Placeholder="Last Name" FontSize="18" Text="{Binding LastName}" />
+                <!-- Binding Email Entry for Registration -->
+                <Entry x:Name="EmailEntryRegister" Placeholder="Email" FontSize="18" Text="{Binding Email}" />
+                <!-- Binding Password Entry for Registration -->
+                <Entry x:Name="PasswordEntryRegister" Placeholder="Password" IsPassword="True" FontSize="18" Text="{Binding Password}" />
+                <!-- Binding Confirm Password Entry -->
+                <Entry x:Name="ConfirmPasswordEntry" Placeholder="Confirm Password" IsPassword="True" FontSize="18" Text="{Binding ConfirmPassword}" />
+
+                <Label Text="Admin" FontSize="16" />
+
+                <!-- Register Button -->
+                <Button Text="Register"
+                        FontSize="18"
+                        BackgroundColor="LightGreen"
+                        TextColor="White"
+                        Command="{Binding RegisterCommand}" />
+
+                <!-- Switch to Login -->
+                <Label 
+                    Text="Already have an account? Login here"
+                    FontSize="16"
+                    TextColor="Blue"    
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer 
+                            Command="{Binding SwitchToLoginCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+
+            </StackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
