@@ -6,21 +6,14 @@
              x:Class="LibraryApp.Views.LoginPage"
              Title="Login / Register">
     <ScrollView>
-        <!-- Use a Grid layout to center content vertically -->
         <Grid Padding="20" VerticalOptions="FillAndExpand">
-            <!-- Row Definitions -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-                <!-- For the top empty space -->
                 <RowDefinition Height="Auto" />
-                <!-- For the Title -->
                 <RowDefinition Height="*" />
-                <!-- For the bottom empty space -->
                 <RowDefinition Height="*" />
-                <!-- For the Login/Register content -->
             </Grid.RowDefinitions>
 
-            <!-- Title Label centered vertically in the second row -->
             <Label Text="Welcome to our online library"
                    FontSize="24"
                    FontAttributes="Bold"
@@ -29,7 +22,6 @@
                    TextColor="DarkRed"
                    Grid.Row="1" />
 
-            <!-- Main content (Login / Register) placed in the last row -->
             <VerticalStackLayout Padding="20" Spacing="15" Grid.Row="3">
                 <StackLayout IsVisible="{Binding IsLoginVisible}">
                     <Entry x:Name="EmailEntry" Placeholder="Email" FontSize="18" Text="{Binding Email}" />

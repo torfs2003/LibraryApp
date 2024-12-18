@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="LibraryApp.Views.AdminPage"
              xmlns:vm="clr-namespace:LibraryApp.ViewModels"
-             Title="Admin Page">
+             x:DataType="vm:AdminViewModel"
+             Title="{Binding Title}">
 
     <Grid>
 

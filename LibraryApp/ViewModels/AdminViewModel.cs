@@ -11,7 +11,7 @@
         public ICommand LogoutCommand { get; }
 
 
-        public AdminViewModel()
+        public AdminViewModel(BookService bookService, InventoryService inventoryService, UserService userService)
         {
             Title = "Admin Page";
             _inventoryService = new InventoryService();

@@ -2,6 +2,7 @@
 
 namespace LibraryApp.ViewModels
 {
+
     public partial class InventoryViewModel : BaseViewModel
     {
         readonly InventoryService _inventoryService;
@@ -47,24 +48,23 @@ namespace LibraryApp.ViewModels
 
         private void OnInventoryUpdated()
         {
-            // Re-fetch inventory data
             Task.Run(async () => await GetInventoryAsync(UserId));
         }
 
         private async void Logout()
         {
-            Preferences.Remove("userEmail");
-            Preferences.Remove("userPassword");
-
-            Preferences.Remove("userToken");
+            Cart.Clear();
+            Inventory.Clear();
 
             await Shell.Current.GoToAsync("//LoginPage");
         }
 
 
 
+
         public async Task GetInventoryAsync(int userId)
         {
+
             try
             {
                 IsBusy = true;
@@ -152,7 +152,6 @@ namespace LibraryApp.ViewModels
 
             bool success = true;
 
-            // Iterate over a copy of the cart to avoid modifying it during the loop
             foreach (var book in Cart.ToList())
             {
                 var userInventory = await _inventoryService.GetUserInventory(UserId);
@@ -160,7 +159,6 @@ namespace LibraryApp.ViewModels
 
                 if (inv != null)
                 {
-
                     try
                     {
                         // Remove the book from the inventory
@@ -183,15 +181,7 @@ namespace LibraryApp.ViewModels
                         };
 
                         bool updateSuccess = await _bookService.UpdateBook(book.Id, updatedBook);
-                        if (updateSuccess)
-                        {
-                            Inventory.Clear();
-                            await GetInventoryAsync(UserId);
-                            Notifier.NotifyInventoryUpdated();
-
-
-                        }
-                        else
+                        if (!updateSuccess)
                         {
                             success = false;
                             await Shell.Current.DisplayAlert("Error", $"Failed to update stock for book: {book.Title}", "OK");
@@ -205,18 +195,16 @@ namespace LibraryApp.ViewModels
                 }
                 else
                 {
-                    // If no inventory item found for this book, mark as failure
                     success = false;
                     await Shell.Current.DisplayAlert("Error", $"Book not found in inventory: {book.Title}", "OK");
                 }
             }
-
-            // Clear the Cart after processing all books
             Cart.Clear();
             OnPropertyChanged(nameof(IsReturnButtonVisible));
 
             if (success)
             {
+                await GetInventoryAsync(UserId);
                 Notifier.NotifyInventoryUpdated();
                 await Shell.Current.DisplayAlert("Success", "Books returned successfully!", "OK");
             }
@@ -228,6 +216,7 @@ namespace LibraryApp.ViewModels
 
 
 
+
         public void OnDisappearing()
         {          
             foreach (var book in Cart)
@@ -236,6 +225,7 @@ namespace LibraryApp.ViewModels
                 book.IsRemoveButtonVisibleInventory = false;
             }
             Cart.Clear();
+
             OnPropertyChanged(nameof(IsReturnButtonVisible));
 
 

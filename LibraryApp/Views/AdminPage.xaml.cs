@@ -2,8 +2,12 @@ namespace LibraryApp.Views;
 
 public partial class AdminPage : ContentPage
 {
-	public AdminPage()
+    private AdminViewModel _adminViewModel;
+    public AdminPage()
 	{
 		InitializeComponent();
-	}
+        _adminViewModel = new AdminViewModel(new BookService(), new InventoryService(), new UserService());
+        BindingContext = _adminViewModel;
+    }
+
 }

@@ -15,7 +15,6 @@ namespace LibraryApp.Views
         {
             base.OnDisappearing();
 
-            // Ensure OnDisappearing from ViewModel is called
             if (BindingContext is BookViewModel viewModel)
             {
                 viewModel.OnDisappearing();

@@ -17,8 +17,6 @@
 
     </ContentPage.Resources>
 
-
-
     <ScrollView>
         <VerticalStackLayout Padding="10" BackgroundColor="FloralWhite">
             <CollectionView IsVisible="{Binding IsNotBusy}" ItemsSource="{Binding Inventory}">
@@ -30,9 +28,9 @@
                                 <Label Text="{Binding Book.Title}" FontSize="24" FontAttributes="Bold" />
                                 <HorizontalStackLayout Padding="10">
                                     <Image Source="{Binding Book.Image}" 
-                                                   HeightRequest="150" 
-                                                   WidthRequest="100" 
-                                                   Aspect="AspectFill" />
+                                                    HeightRequest="150" 
+                                                    WidthRequest="100" 
+                                                    Aspect="AspectFill" />
                                     <VerticalStackLayout Padding="10" Spacing="4" VerticalOptions="Center">
                                         <Label Text="{Binding Book.Author}" FontSize="14" />
                                         <Label Text="{Binding Book.Genre}" FontSize="14" />
@@ -77,9 +75,10 @@
                             WidthRequest="200"
                             IsEnabled="{Binding IsReturnButtonVisible}" />
             <ActivityIndicator IsVisible="{Binding IsBusy}"
-                                       IsRunning="{Binding IsBusy}"
-                                       HorizontalOptions="FillAndExpand"
-                                       VerticalOptions="CenterAndExpand" />
+                                        IsRunning="{Binding IsBusy}"
+                                        HorizontalOptions="FillAndExpand"
+                                        VerticalOptions="CenterAndExpand" />
         </VerticalStackLayout>
     </ScrollView>
+
 </ContentPage>

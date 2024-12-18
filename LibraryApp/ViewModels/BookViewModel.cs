@@ -141,28 +141,25 @@
             try
             {
                
-                // If the book is already in the cart, remove it
                 if (Cart.Contains(book))
                 {
-                    Cart.Remove(book); // Remove the book from the cart
-                    book.IsAddButtonVisibleBook = true; // Show "Add to Cart" button
-                    book.IsRemoveButtonVisibleBook = false; // Hide "Remove from Cart" button
+                    Cart.Remove(book); 
+                    book.IsAddButtonVisibleBook = true; 
+                    book.IsRemoveButtonVisibleBook = false;
                 }
                 else
                 {
-                    // Otherwise, add the book to the cart
-                    Cart.Add(book); // Add the book to the cart
-                    book.IsAddButtonVisibleBook = false; // Hide "Add to Cart" button
-                    book.IsRemoveButtonVisibleBook = true; // Show "Remove from Cart" button
+                    
+                    Cart.Add(book);
+                    book.IsAddButtonVisibleBook = false;
+                    book.IsRemoveButtonVisibleBook = true; 
                 }
 
-                // Notify UI of changes
-                OnPropertyChanged(nameof(Cart)); // Update the Cart UI
-                OnPropertyChanged(nameof(IsSaveButtonVisible)); // Update visibility if needed
+                OnPropertyChanged(nameof(Cart));
+                OnPropertyChanged(nameof(IsSaveButtonVisible));
             }
             catch (Exception ex)
             {
-                // Handle potential errors gracefully
                 await Shell.Current.DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
             }
         }
