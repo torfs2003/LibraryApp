@@ -2,8 +2,6 @@ namespace LibraryApp.Views
 {
     public partial class InventoryPage : ContentPage
     {
-        private readonly InventoryViewModel _viewModel;
-
         public InventoryPage()
         {
             InitializeComponent();

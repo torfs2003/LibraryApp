@@ -6,78 +6,86 @@
              x:Class="LibraryApp.Views.LoginPage"
              Title="Login / Register">
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
+        <!-- Use a Grid layout to center content vertically -->
+        <Grid Padding="20" VerticalOptions="FillAndExpand">
+            <!-- Row Definitions -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <!-- For the top empty space -->
+                <RowDefinition Height="Auto" />
+                <!-- For the Title -->
+                <RowDefinition Height="*" />
+                <!-- For the bottom empty space -->
+                <RowDefinition Height="*" />
+                <!-- For the Login/Register content -->
+            </Grid.RowDefinitions>
 
-            <!-- Login Section -->
-            <StackLayout IsVisible="{Binding IsLoginVisible}">
-                <!-- Binding Email Entry to ViewModel -->
-                <Entry x:Name="EmailEntry" Placeholder="Email" FontSize="18" Text="{Binding Email}" />
-                <!-- Binding Password Entry to ViewModel -->
-                <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True" FontSize="18" Text="{Binding Password}" />
+            <!-- Title Label centered vertically in the second row -->
+            <Label Text="Welcome to our online library"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   TextColor="DarkRed"
+                   Grid.Row="1" />
 
-                <!-- Login Button -->
-                <Button Text="Login"
-                        FontSize="18"
-                        BackgroundColor="DarkRed"
-                        TextColor="White"
-                        Command="{Binding LoginCommand}" />
+            <!-- Main content (Login / Register) placed in the last row -->
+            <VerticalStackLayout Padding="20" Spacing="15" Grid.Row="3">
+                <StackLayout IsVisible="{Binding IsLoginVisible}">
+                    <Entry x:Name="EmailEntry" Placeholder="Email" FontSize="18" Text="{Binding Email}" />
+                    <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True" FontSize="18" Text="{Binding Password}" />
 
-                <!-- Switch to Registration -->
-                <Label 
-                    Text="Don't have an account? Register here"
-                    FontSize="16"
-                    TextColor="Blue"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer 
-                            Command="{Binding SwitchToRegisterCommand}" />
-                    </Label.GestureRecognizers>
-                    <Label.Style>
-                        <Style TargetType="Label">
-                            <Setter Property="TextColor" Value="Blue"/>
-                            <Setter Property="TextDecorations" Value="Underline"/>
-                        </Style>
-                    </Label.Style>
-                </Label>
-            </StackLayout>
+                    <Button Text="Login"
+                            FontSize="18"
+                            BackgroundColor="DarkRed"
+                            TextColor="White"
+                            Command="{Binding LoginCommand}" />
 
-            <!-- Registration Section -->
-            <StackLayout IsVisible="{Binding IsRegisterVisible}">
-                <!-- Binding First Name -->
-                <Entry x:Name="FirstNameEntry" Placeholder="First Name" FontSize="18" Text="{Binding FirstName}" />
-                <!-- Binding Last Name -->
-                <Entry x:Name="LastNameEntry" Placeholder="Last Name" FontSize="18" Text="{Binding LastName}" />
-                <!-- Binding Email Entry for Registration -->
-                <Entry x:Name="EmailEntryRegister" Placeholder="Email" FontSize="18" Text="{Binding Email}" />
-                <!-- Binding Password Entry for Registration -->
-                <Entry x:Name="PasswordEntryRegister" Placeholder="Password" IsPassword="True" FontSize="18" Text="{Binding Password}" />
-                <!-- Binding Confirm Password Entry -->
-                <Entry x:Name="ConfirmPasswordEntry" Placeholder="Confirm Password" IsPassword="True" FontSize="18" Text="{Binding ConfirmPassword}" />
+                    <Label 
+                        Text="Don't have an account? Register here"
+                        FontSize="16"
+                        TextColor="Blue"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding SwitchToRegisterCommand}" />
+                        </Label.GestureRecognizers>
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Setter Property="TextColor" Value="Blue"/>
+                                <Setter Property="TextDecorations" Value="Underline"/>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+                </StackLayout>
 
-                <Label Text="Admin" FontSize="16" />
+                <StackLayout IsVisible="{Binding IsRegisterVisible}">
+                    <Entry x:Name="FirstNameEntry" Placeholder="First Name" FontSize="18" Text="{Binding FirstName}" />
+                    <Entry x:Name="LastNameEntry" Placeholder="Last Name" FontSize="18" Text="{Binding LastName}" />
+                    <Entry x:Name="EmailEntryRegister" Placeholder="Email" FontSize="18" Text="{Binding Email}" />
+                    <Entry x:Name="PasswordEntryRegister" Placeholder="Password" IsPassword="True" FontSize="18" Text="{Binding Password}" />
+                    <Entry x:Name="ConfirmPasswordEntry" Placeholder="Confirm Password" IsPassword="True" FontSize="18" Text="{Binding ConfirmPassword}" />
 
-                <!-- Register Button -->
-                <Button Text="Register"
-                        FontSize="18"
-                        BackgroundColor="LightGreen"
-                        TextColor="White"
-                        Command="{Binding RegisterCommand}" />
+                    <Button Text="Register"
+                            FontSize="18"
+                            BackgroundColor="LightGreen"
+                            TextColor="White"
+                            Command="{Binding RegisterCommand}" />
 
-                <!-- Switch to Login -->
-                <Label 
-                    Text="Already have an account? Login here"
-                    FontSize="16"
-                    TextColor="Blue"    
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer 
-                            Command="{Binding SwitchToLoginCommand}" />
-                    </Label.GestureRecognizers>
-                </Label>
-
-            </StackLayout>
-        </VerticalStackLayout>
+                    <Label 
+                        Text="Already have an account? Login here"
+                        FontSize="16"
+                        TextColor="Blue"    
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding SwitchToLoginCommand}" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </StackLayout>
+            </VerticalStackLayout>
+        </Grid>
     </ScrollView>
 </ContentPage>

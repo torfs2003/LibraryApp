@@ -12,7 +12,6 @@
     <ContentPage.Resources>
         <convert:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <convert:AvailabilityConverter x:Key="AvailabilityConverter" />
-        <convert:DueDateConverter x:Key="DueDateConverter" />
     </ContentPage.Resources>
 
     <Grid>
@@ -59,9 +58,9 @@
                                             <Image Source="{Binding Image}" HeightRequest="150" WidthRequest="100" Aspect="AspectFill" />
                                             <VerticalStackLayout Padding="5" Spacing="20" VerticalOptions="Center">
                                                 <VerticalStackLayout Spacing="8">
-                                                    <Label Text="{Binding Author}" FontSize="12" />
-                                                    <Label Text="{Binding Genre}" FontSize="12" />
-                                                    <Label Text="{Binding Stock, StringFormat='Stock: {0} left'}" FontSize="12" />
+                                                    <Label Text="{Binding Author, StringFormat='Author: {0}'}" FontSize="12" />
+                                                    <Label Text="{Binding Genre, StringFormat='Genre: {0}'}" FontSize="12" />
+                                                    <Label Text="{Binding Stock, Converter={StaticResource AvailabilityConverter}}" FontSize="12" />
                                                 </VerticalStackLayout>
 
                                                 <!-- Add Button -->

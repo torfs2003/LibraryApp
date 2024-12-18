@@ -1,15 +1,15 @@
 ﻿namespace LibraryApp.ViewModels
 {
-    public class LoginViewModel : BaseViewModel
+    public partial class LoginViewModel : BaseViewModel
     {
         private readonly UserService _userService;
-        private string _firstName;
-        private string _lastName;
-        private string _email;
-        private string _password;
-        private string _confirmPassword;
-        private bool _isLoginVisible = true;
-        private bool _isRegisterVisible = false;
+
+        private string _firstName = string.Empty;
+        private string _lastName = string.Empty;
+        private string _email = string.Empty;
+        private string _password = string.Empty;
+        private string _confirmPassword = string.Empty;
+
 
         public string FirstName
         {
@@ -41,6 +41,9 @@
             set => SetProperty(ref _confirmPassword, value);
         }
 
+        private bool _isLoginVisible = true;
+        private bool _isRegisterVisible = false;
+
         public bool IsLoginVisible
         {
             get => _isLoginVisible;
@@ -62,7 +65,7 @@
         {
             _userService = userService;
 
-            // Commands
+            // Initialize commands
             LoginCommand = new Command(async () => await LoginAsync());
             RegisterCommand = new Command(async () => await RegisterAsync());
             SwitchToRegisterCommand = new Command(SwitchToRegister);
@@ -81,7 +84,6 @@
             IsRegisterVisible = false;
         }
 
-        // Handle Login logic
         private async Task LoginAsync()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -89,21 +91,16 @@
 
             if (user != null)
             {
-
-                Preferences.Set("userId", user.Id);
-                int userIdFromPreferences = Preferences.Get("userId", 0);
-                Debug.WriteLine($"UserId saved to Preferences: {userIdFromPreferences}");
-
-                Debug.WriteLine($"Setting UserId to: {user.Id}");
+                Preferences.Set("UserId", user.Id);
                 UserId = user.Id;
 
                 if (user.Admin)
                 {
-                    await Shell.Current.GoToAsync($"//AdminPage?userId={user.Id}");
+                    await Shell.Current.GoToAsync("//AdminPage");
                 }
                 else
                 {
-                    await Shell.Current.GoToAsync($"//MainPage?userId={user.Id}");
+                    await Shell.Current.GoToAsync("//MainPage");
                 }
             }
             else
@@ -112,7 +109,6 @@
             }
         }
 
-        // Handle Registration logic
         private async Task RegisterAsync()
         {
             // Validation of input fields
@@ -123,7 +119,24 @@
                 return;
             }
 
-            // Create a UserWriteDto for registration
+            if (!IsValidEmail(Email))
+            {
+                await Shell.Current.DisplayAlert("Invalid Email", "Please enter a valid email address.", "OK");
+                return;
+            }
+
+            var users = await _userService.GetAllUsersAsync();
+            foreach (var user in users)
+            {
+                var existingUser = await _userService.GetUserByIdAsync(user.Id);
+                if (existingUser.Email == Email)
+                {
+                    // Notify user if email exists
+                    await Shell.Current.DisplayAlert("Email Taken", "This email is already associated with an account. Please use a different email.", "OK");
+                    return;
+                }
+            }
+
             var userDto = new UserWriteDto
             {
                 FirstName = FirstName,
@@ -132,18 +145,21 @@
                 Password = Password
             };
 
-            // Call AddUserAsync to register the user
             var addedUser = await _userService.AddUserAsync(userDto);
             if (addedUser != null)
             {
-                // Successfully registered. Automatically log the user in or proceed to the next step.
                 await LoginAsync();
             }
             else
             {
-                // Registration failed
                 await Shell.Current.DisplayAlert("Registration Failed", "An error occurred during registration", "OK");
             }
+        }
+
+        private static bool IsValidEmail(string email)
+        {
+            string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+            return Regex.IsMatch(email, emailPattern);
         }
     }
 }

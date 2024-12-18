@@ -4,8 +4,11 @@
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            bool isAvailable = (bool)value;
-            return isAvailable ? "Available" : "Out of stock";
+            if (value is int stock)
+            {
+                return stock > 0 ? $"Available ({stock})" : "Out of stock";
+            }
+            return string.Empty;
         }
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

@@ -12,9 +12,8 @@
 
         public string Password { get; set; }
 
-        public bool Admin { get; set; } = false;
+        public bool Admin { get; set; }
 
-        public string Type => "User";
         public User(string firstName, string lastName, string email, string password, bool admin)
         {
             FirstName = firstName;

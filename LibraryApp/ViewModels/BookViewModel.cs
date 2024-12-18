@@ -1,34 +1,41 @@
 ﻿namespace LibraryApp.ViewModels
 {
-    public partial class BookViewModel : BaseViewModel, IQueryAttributable
+    public partial class BookViewModel : BaseViewModel
     {
-        private readonly BookService _bookService;
-        private readonly InventoryService _inventoryService;
+        readonly BookService _bookService;
+        readonly InventoryService _inventoryService;
 
-        // Observable collections for books and cart
         public ObservableCollection<Book> Books { get; } = new();
         public ObservableCollection<Book> Cart { get; } = new();
 
 
-        public ICommand LogoutCommand { get; }
-        public ICommand GetBooksCommand { get; }
-        public ICommand SaveBookCommand { get; }
-        public ICommand ToggleBookCommand { get; }
 
-        public bool IsSaveButtonVisible => Cart.Count > 0;
-
-        public bool IsBookInCart(Book book)
+        private bool _isSaveButtonVisible;
+        public bool IsSaveButtonVisible
         {
-            return Cart.Contains(book);
-        }
-
-        public void ApplyQueryAttributes(IDictionary<string, object> query)
-        {
-            if (query.ContainsKey("userId") && int.TryParse(query["userId"].ToString(), out int userId))
+            get => _isSaveButtonVisible || Cart.Count > 0;
+            set
             {
-                UserId = userId;
+                if (_isSaveButtonVisible == value) return;
+                _isSaveButtonVisible = value;
+                OnPropertyChanged(nameof(IsSaveButtonVisible));
             }
         }
+
+        public static class Notifier
+        {
+            public static event Action InventoryUpdated;
+
+            public static void NotifyInventoryUpdated()
+            {
+                InventoryUpdated?.Invoke();
+            }
+        }
+
+
+        public ICommand LogoutCommand { get; }
+        public ICommand SaveBookCommand { get; }
+        public ICommand ToggleBookCommand { get; }
 
         // Constructor
         public BookViewModel(BookService bookService, InventoryService inventoryService)
@@ -40,24 +47,48 @@
 
             // Commands for various actions
             LogoutCommand = new Command(Logout);
-            GetBooksCommand = new Command(async () => await GetBooksAsync());
             SaveBookCommand = new Command(async () => await SaveBooks());
             ToggleBookCommand = new Command<Book>(ToggleBook);
+
+            Notifier.InventoryUpdated += OnInventoryUpdated;
 
             Task.Run(async () => await GetBooksAsync());
         }
 
+        private async void OnInventoryUpdated()
+        {
+            try
+            {
+                // Fetch updated book data from the database
+                var updatedBooks = await _bookService.GetAllBooks();
+
+                foreach (var updatedBook in updatedBooks)
+                {
+                    var existingBook = Books.FirstOrDefault(b => b.Id == updatedBook.Id);
+                    if (existingBook != null)
+                    {
+                       
+                        existingBook.Stock = updatedBook.Stock;
+                        OnPropertyChanged(nameof(Books));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating book stock in UI: {ex.Message}");
+            }
+        }
+
         private async void Logout()
         {
-            Preferences.Remove("userEmail");
-            Preferences.Remove("userPassword");
+            Cart.Clear();
+            Books.Clear();
 
-            // Optionally, clear the user token if you're using authentication tokens
-            Preferences.Remove("userToken");
-
-
-            await Shell.Current.GoToAsync($"//LoginPage?userId={UserId}");
+            await Shell.Current.GoToAsync("//LoginPage");
         }
+
+
+
         // Fetch the books that the user currently owns in their inventory
         public async Task GetBooksAsync()
         {
@@ -74,6 +105,8 @@
                 // Fetch all books using the BookService
                 var allBooks = await _bookService.GetAllBooks();
 
+                Books.Clear();
+
                 // Add each book to the Books collection
                 foreach (var bookDetails in allBooks)
                 {
@@ -82,7 +115,7 @@
                         bookDetails.Title,
                         bookDetails.Author,
                         bookDetails.Genre,
-                        bookDetails.Image,  // Image can be null, so handle accordingly
+                        bookDetails.Image,
                         bookDetails.Stock
                     );
                     Books.Add(book);
@@ -101,11 +134,13 @@
             }
         }
 
+        
 
         private async void ToggleBook(Book book)
         {
             try
             {
+               
                 // If the book is already in the cart, remove it
                 if (Cart.Contains(book))
                 {
@@ -134,39 +169,32 @@
 
 
 
-
-
-
-        // Save (Borrow) books in the cart
+        // Save books in the User Inventory
         private async Task SaveBooks()
         {
             if (Cart.Count == 0)
                 return;
 
-            var success = true;
+            bool success = true;
 
             foreach (var book in Cart)
             {
-                // Borrowing the book via the inventory service
                 var inventoryItem = new InventoryWriteDto
                 {
                     BookId = book.Id,
                     UserId = UserId,
-                    DueDate = DateTime.Now.AddDays(30)
+                    DueDate = DateTime.Now.AddMonths(1)
                 };
 
                 bool bookSuccess = await _inventoryService.BorrowBooks(inventoryItem);
                 if (!bookSuccess)
                 {
                     success = false;
-                    break; // Exit the loop if one book fails
+                    break;
                 }
-
-                // Update the book stock (decrement by 1)
                 var bookDetails = await _bookService.GetBookById(book.Id);
                 if (bookDetails != null)
                 {
-                    // Decrement the stock value
                     var updatedBook = new BookUpdateDto
                     {
                         Title = bookDetails.Title,
@@ -175,34 +203,32 @@
                         Image = bookDetails.Image,
                         Stock = bookDetails.Stock - 1
                     };
-
-                    // Update in the database
                     bool updateSuccess = await _bookService.UpdateBook(book.Id, updatedBook);
                     if (updateSuccess)
                     {
-                        // Update the stock in the Book object in the collection
                         var bookInCollection = Books.FirstOrDefault(b => b.Id == book.Id);
                         if (bookInCollection != null)
                         {
-                            bookInCollection.Stock = updatedBook.Stock; // This will notify the UI due to SetProperty
-                            bookInCollection.IsAddButtonVisibleBook = true; // Reset to "Add" button
-                            bookInCollection.IsRemoveButtonVisibleBook = false; // Reset to "Remove" button
+                            bookInCollection.Stock = updatedBook.Stock;
+                            bookInCollection.IsAddButtonVisibleBook = true;
+                            bookInCollection.IsRemoveButtonVisibleBook = false;
                         }
+
+                        Notifier.NotifyInventoryUpdated();
                     }
                     else
                     {
                         success = false;
-                        break; // Exit the loop if updating stock fails
+                        break;
                     }
                 }
                 else
                 {
                     success = false;
-                    break; // Exit the loop if the book details cannot be fetched
+                    break;
                 }
             }
 
-            // Show success or failure message after all books are processed
             if (success)
             {
                 // Clear the cart after all books have been successfully borrowed
@@ -222,7 +248,7 @@
 
                 if (navigateToInventory)
                 {
-                    await Shell.Current.GoToAsync($"//InventoryPage?userId={UserId}");
+                    await Shell.Current.GoToAsync("//InventoryPage");
 
                 }
             }
@@ -233,6 +259,8 @@
             }
         }
 
+        
+
         public void OnDisappearing()
         {
             // Reset the buttons for each book
@@ -241,6 +269,13 @@
                 book.IsAddButtonVisibleBook = true;
                 book.IsRemoveButtonVisibleBook = false;
             }
+            Cart.Clear();
+            OnPropertyChanged(nameof(IsSaveButtonVisible));
+        }
+
+        ~BookViewModel()
+        {
+            Notifier.InventoryUpdated -= OnInventoryUpdated;
         }
 
     }

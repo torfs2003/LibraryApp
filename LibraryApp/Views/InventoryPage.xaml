@@ -12,8 +12,12 @@
 
     <ContentPage.Resources>
         <convert:InverseBooleanConverter x:Key="InverseBooleanConverter" />
-        <convert:DueDateConverter x:Key="DueDateConverter" />
+        <convert:DueDateTextConverter x:Key="DueDateTextConverter" />
+        <convert:DueDateColorConverter x:Key="DueDateColorConverter" />
+
     </ContentPage.Resources>
+
+
 
     <ScrollView>
         <VerticalStackLayout Padding="10" BackgroundColor="FloralWhite">
@@ -23,41 +27,41 @@
                         <Frame BorderColor="DarkRed" Margin="2" BackgroundColor="Transparent">
                             <VerticalStackLayout Padding="5">
                                 <!-- Bind to the Book properties inside Inventory -->
-                                <Label Text="{Binding book.Title}" FontSize="24" FontAttributes="Bold" />
+                                <Label Text="{Binding Book.Title}" FontSize="24" FontAttributes="Bold" />
                                 <HorizontalStackLayout Padding="10">
-                                    <Image Source="{Binding book.Image}" 
-                                           HeightRequest="150" 
-                                           WidthRequest="100" 
-                                           Aspect="AspectFill" />
+                                    <Image Source="{Binding Book.Image}" 
+                                                   HeightRequest="150" 
+                                                   WidthRequest="100" 
+                                                   Aspect="AspectFill" />
                                     <VerticalStackLayout Padding="10" Spacing="4" VerticalOptions="Center">
-                                        <Label Text="{Binding book.Author}" FontSize="14" />
-                                        <Label Text="{Binding book.Genre}" FontSize="14" />
-                                        <Label Text="{Binding DueDate, Converter={StaticResource DueDateConverter}}" FontSize="12" />
+                                        <Label Text="{Binding Book.Author}" FontSize="14" />
+                                        <Label Text="{Binding Book.Genre}" FontSize="14" />
+                                        <Label Text="{Binding DueDate, Converter={StaticResource DueDateTextConverter}}" FontSize="12" FontAttributes="Bold" TextColor="{Binding DueDate, Converter={StaticResource DueDateColorConverter}}" />
 
                                         <!-- Add Button -->
                                         <Button 
-                                                Text="Add"
-                                                FontSize="16"
-                                                HeightRequest="50"
-                                                WidthRequest="200"
-                                                BackgroundColor="DarkRed"
-                                                IsVisible="{Binding book.IsAddButtonVisibleInventory}" 
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InventoryViewModel}}, Path=ToggleInventoryCommand}"
-                                                CommandParameter="{Binding book}" />
+                                                        Text="Add"
+                                                        FontSize="16"
+                                                        HeightRequest="50"
+                                                        WidthRequest="200"
+                                                        BackgroundColor="DarkRed"
+                                                        IsVisible="{Binding Book.IsAddButtonVisibleInventory}" 
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InventoryViewModel}}, Path=ToggleInventoryCommand}"
+                                                        CommandParameter="{Binding Book}" />
 
                                         <!-- Remove Button -->
                                         <Button 
-                                                Text="Remove"
-                                                FontSize="16"
-                                                HeightRequest="50"
-                                                WidthRequest="200"
-                                                BorderColor="DarkRed"
-                                                BorderWidth="2"
-                                                BackgroundColor="Transparent"
-                                                TextColor="DarkRed"
-                                                IsVisible="{Binding book.IsRemoveButtonVisibleInventory}" 
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InventoryViewModel}}, Path=ToggleInventoryCommand}"
-                                                CommandParameter="{Binding book}" />
+                                                        Text="Remove"
+                                                        FontSize="16"
+                                                        HeightRequest="50"
+                                                        WidthRequest="200"
+                                                        BorderColor="DarkRed"
+                                                        BorderWidth="2"
+                                                        BackgroundColor="Transparent"
+                                                        TextColor="DarkRed"
+                                                        IsVisible="{Binding Book.IsRemoveButtonVisibleInventory}" 
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InventoryViewModel}}, Path=ToggleInventoryCommand}"
+                                                        CommandParameter="{Binding Book}" />
                                     </VerticalStackLayout>
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>
@@ -67,15 +71,15 @@
             </CollectionView>
 
             <Button Text="Return books" 
-                    Command="{Binding ReturnBookCommand}"
-                    BackgroundColor="DarkRed"
-                    HeightRequest="40"
-                    WidthRequest="200"
-                    IsEnabled="{Binding IsReturnButtonVisible}" />
+                            Command="{Binding ReturnBookCommand}"
+                            BackgroundColor="DarkRed"
+                            HeightRequest="40"
+                            WidthRequest="200"
+                            IsEnabled="{Binding IsReturnButtonVisible}" />
             <ActivityIndicator IsVisible="{Binding IsBusy}"
-                               IsRunning="{Binding IsBusy}"
-                               HorizontalOptions="FillAndExpand"
-                               VerticalOptions="CenterAndExpand" />
+                                       IsRunning="{Binding IsBusy}"
+                                       HorizontalOptions="FillAndExpand"
+                                       VerticalOptions="CenterAndExpand" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

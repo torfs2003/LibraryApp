@@ -1,6 +1,6 @@
 ﻿namespace LibraryApp.ViewModels
 {
-    public class BaseViewModel : INotifyPropertyChanged
+    public partial class BaseViewModel : INotifyPropertyChanged
     {
         private bool isBusy;
         private string title = "";
@@ -20,6 +20,7 @@
                 OnPropertyChanged(nameof(IsNotBusy));
             }
         }
+
 
         public string Title
         {
@@ -60,10 +61,11 @@
 
         public BaseViewModel()
         {
-            // Initialize UserId from Preferences
             UserId = Preferences.Get("userId", 0);
         }
         public bool IsNotBusy => !IsBusy;
+
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

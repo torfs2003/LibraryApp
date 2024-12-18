@@ -1,6 +1,6 @@
 ﻿namespace LibraryApp.Models
 {
-    public class Book :BaseViewModel
+    public partial class Book :BaseViewModel
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -13,14 +13,12 @@
             get => _stock;
             set
             {
-                if (SetProperty(ref _stock, value)) // Calls SetProperty to notify the UI
+                if (SetProperty(ref _stock, value)) 
                 {
-                    OnPropertyChanged(nameof(IsAvailable)); // Ensure IsAvailable is recalculated
+                    OnPropertyChanged(nameof(IsAvailable));
                 }
             }
         }
-
-        public string Type => "Book";
 
 
         public Book(int id, string title, string author, string genre, string image, int stock)
